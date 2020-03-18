@@ -2,7 +2,8 @@
 s.boot;
 
 // Read in the sound file
-b = Buffer.read(s, "C:/Users/Ilhan/Desktop/rhythm_2.wav");
+//b = Buffer.read(s, "C:/Users/Ilhan/Desktop/rhythm_2.wav");
+b = Buffer.read(s, "C:/Users/Ilhan/Desktop/woef.wav");
 
 // Make a buffer to store feature vector values (energy method via Sethares)
 f = Array.new(50);
@@ -42,7 +43,8 @@ x = { var in, chain, chainB, chainC;
 	in = PlayBuf.ar(1,b.bufnum);
 	//in = WhiteNoise.ar;
     chain = FFT(c, in);
-    0.01 * Pan2.ar(IFFT(chain));
+	Pan2.ar(IFFT(chain));
+    //0.01 * Pan2.ar(IFFT(chain));
 }.play(s);
 )
 
@@ -69,7 +71,7 @@ Routine({
 
             { q.plot('Initial', Rect(200, 600-(200*i), 700, 200)) }.defer
         });
-        2.0.wait;
+        0.0001.wait;
 }}).play
 )
 
