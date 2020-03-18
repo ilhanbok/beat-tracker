@@ -49,7 +49,7 @@ x = { var in, chain, chainB, chainC;
 // Plot the magnitude of the sound progressively
 (
 Routine({
-    5.do{arg i;
+    2.do{arg i;
         c.getToFloatArray(action: { arg array;
             var z, x;
             z = array.clump(2).flop;
@@ -57,9 +57,19 @@ Routine({
             z = [Signal.newFrom(z[0]), Signal.newFrom(z[1])];
             x = Complex(z[0], z[1]);
 
-            { x.magnitude.plot('Initial', Rect(200, 600-(200*i), 700, 200)) }.defer
+			p = x.phase;
+			q = p;
+			p = p.do({
+				// "Unwrap" each phase element to preserve continuity
+				arg item, j;
+				if ((item < 3.14159) && (item > 0), { q.put(j, item); });
+				if (item < 0, { q.put(j, (item + 3.14159)) });
+				if (item > 3.14159, { q.put(j, (item - 3.14159)) });
+			});
+
+            { q.plot('Initial', Rect(200, 600-(200*i), 700, 200)) }.defer
         });
-        0.1.wait;
+        2.0.wait;
 }}).play
 )
 
