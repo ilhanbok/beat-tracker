@@ -23,6 +23,91 @@ ylabel('Phase')
 %}
 format long;
 
+% Read the audio file
+[data, Fs] = audioread('pure_beat.wav');
+
+% ///// ENERGY MEASURE ///// %
+
+% Start and end markers for energy derivation frame
+env_start = 0;
+env_end = 2000;
+
+length = env_end - env_start;
+
+% How much to shift the frames
+env_gap = 250;
+
+% How many sample frames to take
+frames = 1000;
+
+% Previous energy value to determine slope
+prev_energy = 0;
+
+% Place to store the calculated slopes
+slopes = zeros(1, frames);
+
+% Keep shifting window and finding slope of energy
+for i = 1:frames
+    % Take the sum of squares of audio magnitude
+    energy = sum(data(env_start + 1:env_end + 1).^2);
+    slopes(i) = energy - prev_energy;
+    prev_energy = energy;
+    % Increment frame indicies to shift window
+    env_start = env_start + env_gap;
+    env_end = env_end + env_gap;
+end
+
+% Plot the results
+figure(1);
+
+plot(1:frames, slopes);
+
+% Plot logistics
+title('*** Energy Measure ***');
+xlabel('Frame Number');
+ylabel('Energy');
+
+% ///// GROUP DELAY ///// %
+
+% Start and end markers for FFT window (moving)
+frame_start = 0;
+frame_end = 2000;
+
+length = frame_end - frame_start;
+
+% How much to move the frame per iteration
+frame_gap = 250;
+
+% How many iterations during which the frame shifts
+frames = 1000;
+
+% Place to store the calculated slopes
+slopes = zeros(1, frames);
+
+% Keep shifting window and finding slope
+for i = 1:frames
+    % Take the DFT, extract angle, and store slope
+    data_fft = fft(data(frame_start + 1:frame_end + 1));
+    p = polyfit(0:length, angle(data_fft), 1);
+    slopes(i) = p(1);
+    % Increment frame indicies to shift window
+    frame_start = frame_start + frame_gap;
+    frame_end = frame_end + frame_gap;
+end
+
+% Plot the results
+figure(2);
+
+plot(1:frames, slopes);
+
+% Plot logistics
+title('*** Group Delay ***');
+xlabel('Frame Number');
+ylabel('Group Delay');
+
+%{
+format long;
+
 frame_start = 2001;
 frame_end = 4001;
 length = frame_end - frame_start;
@@ -51,3 +136,4 @@ for i = beat_start:beat_end
 end
 
 plot((beat_start:beat_end), b);
+%}
