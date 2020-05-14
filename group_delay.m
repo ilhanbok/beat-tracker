@@ -24,7 +24,7 @@ ylabel('Phase')
 format long;
 
 % Read the audio file
-[data, Fs] = audioread('4321.wav');
+[data, Fs] = audioread('pure_beat.wav');
 
 % ///// ENERGY MEASURE ///// %
 
@@ -157,6 +157,64 @@ plot(1:frames, slopes);
 title('*** Spectral Center ***');
 xlabel('Frame Number');
 ylabel('Center Derivative');
+
+% ///// SPECTRAL DISPERSION ///// %
+
+% Start and end markers for spectral dispersion derivation frame
+spec_start = 0;
+spec_end = 2000;
+
+len = spec_end - spec_start;
+
+% How much to shift the frames
+spec_gap = 250;
+
+% How many sample frames to take
+frames = 1000;
+
+% Previous dispersion value to determine slope
+prev_disp = 0;
+
+% Place to store the calculated slopes
+slopes = zeros(1, frames);
+
+% Keep shifting window and finding slope of spectral dispersion
+for i = 1:frames
+    % Take the DFT to find the magnitude coeffs
+    mag_fft = abs(fft(data(spec_start + 1:spec_end + 1)));
+    % Find the sum, and iterate from the start to find halfway point
+    mag_sum = sum(mag_fft);
+    accum_mag = 0;
+    center = 0;
+    for n = 1:length(mag_fft)
+        accum_mag = accum_mag + mag_fft(n);
+        if accum_mag >= mag_sum/2
+            center = n;
+            break;
+        end
+    end
+    % Now that we have the spectral center, use it in the dispersion
+    accum_disp = 0;
+    for j = 1:length(mag_fft)
+        accum_disp = accum_disp + mag_fft(j)*abs(j-center);
+    end
+    % Take the derivative of the center
+    slopes(i) = accum_disp - prev_disp;
+    prev_disp = accum_disp;
+    % Increment frame indicies to shift window
+    spec_start = spec_start + spec_gap;
+    spec_end = spec_end + spec_gap;
+end
+
+% Plot the results
+figure(4);
+
+plot(1:frames, slopes);
+
+% Plot logistics
+title('*** Spectral Dispersion ***');
+xlabel('Frame Number');
+ylabel('Dispersion Derivative');
 
 %{
 format long;
