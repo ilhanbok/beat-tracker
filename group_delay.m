@@ -24,7 +24,7 @@ ylabel('Phase')
 format long;
 
 % Read the audio file
-[data, Fs] = audioread('pure_beat.wav');
+[data, Fs] = audioread('4321.wav');
 
 % ///// ENERGY MEASURE ///// %
 
@@ -32,7 +32,7 @@ format long;
 env_start = 0;
 env_end = 2000;
 
-length = env_end - env_start;
+len = env_end - env_start;
 
 % How much to shift the frames
 env_gap = 250;
@@ -65,7 +65,7 @@ plot(1:frames, slopes);
 % Plot logistics
 title('*** Energy Measure ***');
 xlabel('Frame Number');
-ylabel('Energy');
+ylabel('Energy Derivative');
 
 % ///// GROUP DELAY ///// %
 
@@ -73,7 +73,7 @@ ylabel('Energy');
 frame_start = 0;
 frame_end = 2000;
 
-length = frame_end - frame_start;
+len = frame_end - frame_start;
 
 % How much to move the frame per iteration
 frame_gap = 250;
@@ -88,7 +88,7 @@ slopes = zeros(1, frames);
 for i = 1:frames
     % Take the DFT, extract angle, and store slope
     data_fft = fft(data(frame_start + 1:frame_end + 1));
-    p = polyfit(0:length, angle(data_fft), 1);
+    p = polyfit(0:len, angle(data_fft), 1);
     slopes(i) = p(1);
     % Increment frame indicies to shift window
     frame_start = frame_start + frame_gap;
@@ -104,6 +104,59 @@ plot(1:frames, slopes);
 title('*** Group Delay ***');
 xlabel('Frame Number');
 ylabel('Group Delay');
+
+% ///// SPECTRAL CENTER ///// %
+
+% Start and end markers for spectral center derivation frame
+spec_start = 0;
+spec_end = 2000;
+
+len = spec_end - spec_start;
+
+% How much to shift the frames
+spec_gap = 250;
+
+% How many sample frames to take
+frames = 1000;
+
+% Previous center value to determine slope
+prev_center = 0;
+
+% Place to store the calculated slopes
+slopes = zeros(1, frames);
+
+% Keep shifting window and finding slope of spectral mean
+for i = 1:frames
+    % Take the DFT to find the magnitude coeffs
+    mag_fft = abs(fft(data(spec_start + 1:spec_end + 1)));
+    % Find the sum, and iterate from the start to find halfway point
+    mag_sum = sum(mag_fft);
+    accum_mag = 0;
+    center = 0;
+    for n = 1:length(mag_fft)
+        accum_mag = accum_mag + mag_fft(n);
+        if accum_mag >= mag_sum/2
+            center = n;
+            break;
+        end
+    end
+    % Take the derivative of the center
+    slopes(i) = center - prev_center;
+    prev_center = center;
+    % Increment frame indicies to shift window
+    spec_start = spec_start + spec_gap;
+    spec_end = spec_end + spec_gap;
+end
+
+% Plot the results
+figure(3);
+
+plot(1:frames, slopes);
+
+% Plot logistics
+title('*** Spectral Center ***');
+xlabel('Frame Number');
+ylabel('Center Derivative');
 
 %{
 format long;
