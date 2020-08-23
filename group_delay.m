@@ -24,7 +24,7 @@ ylabel('Phase')
 format long;
 
 % Read the audio file
-[data, Fs] = audioread('pure_beat.wav');
+[data, Fs] = audioread('MapleLeafRag.ogg');
 
 % ///// ENERGY MEASURE ///// %
 
@@ -38,7 +38,7 @@ len = env_end - env_start;
 env_gap = 250;
 
 % How many sample frames to take
-frames = 1000;
+frames = 10000;
 
 % Previous energy value to determine slope
 prev_energy = 0;
@@ -58,7 +58,7 @@ for i = 1:frames
 end
 
 % Plot the results
-figure(1);
+figure(2);
 
 plot(1:frames, slopes);
 
@@ -79,7 +79,7 @@ len = frame_end - frame_start;
 frame_gap = 250;
 
 % How many iterations during which the frame shifts
-frames = 1000;
+frames = 10000;
 
 % Place to store the calculated slopes
 slopes = zeros(1, frames);
@@ -96,7 +96,7 @@ for i = 1:frames
 end
 
 % Plot the results
-figure(2);
+figure(3);
 
 plot(1:frames, slopes);
 
@@ -117,7 +117,7 @@ len = spec_end - spec_start;
 spec_gap = 250;
 
 % How many sample frames to take
-frames = 1000;
+frames = 10000;
 
 % Previous center value to determine slope
 prev_center = 0;
@@ -149,7 +149,7 @@ for i = 1:frames
 end
 
 % Plot the results
-figure(3);
+figure(4);
 
 plot(1:frames, slopes);
 
@@ -170,7 +170,7 @@ len = spec_end - spec_start;
 spec_gap = 250;
 
 % How many sample frames to take
-frames = 1000;
+frames = 10000;
 
 % Previous dispersion value to determine slope
 prev_disp = 0;
@@ -207,7 +207,7 @@ for i = 1:frames
 end
 
 % Plot the results
-figure(4);
+figure(5);
 
 plot(1:frames, slopes);
 
